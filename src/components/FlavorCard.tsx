@@ -46,7 +46,7 @@ export default function FlavorCard({ flavor, layout = 'grid' }: FlavorCardProps)
       onMouseLeave={() => setIsHovered(false)}
     >
       <Link 
-        to={`/flavors/${flavor.id}`}
+        to={`/product/${flavor.id}`}
         className="block h-full w-full"
         onClick={(e) => e.stopPropagation()}
       >
