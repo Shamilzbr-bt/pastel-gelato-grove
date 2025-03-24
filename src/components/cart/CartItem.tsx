@@ -23,26 +23,41 @@ export default function CartItem({ item, updateQuantity, removeItem }: CartItemP
   const itemPrice = item.price ? parseFloat(item.price) : 0;
   const totalPrice = itemPrice * item.quantity;
   
-  // Function to clean image path
-  const cleanImagePath = (path: string = '') => {
+  // Function to clean image path and handle different formats
+  const getImagePath = (path: string = '') => {
+    // If path is already a full URL, return it as is
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+    
     // Remove /public prefix if it exists
     if (path.startsWith('/public/')) {
       return path.substring(7);
     }
+    
+    // Ensure the path has a leading slash if it's not from lovable-uploads and doesn't have one
+    if (!path.startsWith('/') && !path.startsWith('lovable-uploads')) {
+      return '/' + path;
+    }
+    
     return path;
   };
+
+  // Prepare the image path
+  const imagePath = getImagePath(item.image);
   
   return (
     <div className={`bg-white rounded-xl p-4 shadow-sm transition-all duration-300 ${isRemoving ? 'opacity-0 transform -translate-y-4' : ''}`}>
       <div className="flex gap-3">
         <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
           <img 
-            src={cleanImagePath(item.image)} 
-            alt={item.title} 
+            src={imagePath} 
+            alt={item.title || 'Product image'} 
             className="w-full h-full object-cover"
             onError={(e) => {
+              console.log(`Failed to load image: ${imagePath}`);
               const target = e.target as HTMLImageElement;
-              target.src = 'https://placehold.co/400x400/e81cff/ffffff?text=Missing+Image';
+              target.src = '/lovable-uploads/ee7dd54f-f5d1-41fb-9c95-21e2916f3ee7.png';
             }}
           />
         </div>

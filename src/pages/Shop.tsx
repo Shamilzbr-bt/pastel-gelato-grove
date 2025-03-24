@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -8,7 +7,7 @@ import CategoryFilter from '@/components/shop/CategoryFilter';
 import ProductGrid from '@/components/shop/ProductGrid';
 import GiftCardHighlight from '@/components/shop/GiftCardHighlight';
 import { getLocalProducts, getDemoProducts } from '@/data/products';
-import { useCart, CartItem } from '@/hooks/useCart';
+import { useCart } from '@/hooks/useCart';
 
 export interface Product {
   id: string;
@@ -67,24 +66,9 @@ export default function Shop() {
       ) 
     : products;
   
-  const addToCart = (product: Product) => {
-    // Use the first variant by default
-    const variant = product.variants[0];
-    if (!variant) {
-      toast.error("This product is not available for purchase");
-      return;
-    }
-    
-    const newItem: CartItem = { 
-      variantId: variant.id, 
-      quantity: 1,
-      title: product.title,
-      price: variant.price,
-      image: product.images[0]?.src,
-      variantTitle: variant.title
-    };
-    
-    addItem(newItem);
+  const onAddToCart = (product: Product) => {
+    // This function is passed to ProductCard but the actual implementation is in ProductCard now
+    // We'll keep it for compatibility but it's not directly used anymore
   };
 
   return (
@@ -105,7 +89,7 @@ export default function Shop() {
         <ProductGrid 
           products={filteredProducts} 
           isLoading={isLoading} 
-          onAddToCart={addToCart}
+          onAddToCart={onAddToCart}
           onResetCategory={() => setActiveCategory(null)}
         />
         

@@ -11,6 +11,7 @@ import { Flavor } from "@/models/Flavor";
 import { formatPrice } from "@/utils/formatters";
 import FlavorImage from './flavor/FlavorImage';
 import FlavorDetailDialog from './flavor/FlavorDetailDialog';
+import { useCart } from '@/hooks/useCart';
 
 interface FlavorCardProps {
   flavor: Flavor;
@@ -20,11 +21,23 @@ interface FlavorCardProps {
 export default function FlavorCard({ flavor, layout = 'grid' }: FlavorCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const { addItem } = useCart();
   
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    toast.success(`${flavor.name} added to your cart!`);
+    
+    // Create a CartItem from the flavor
+    const cartItem = {
+      variantId: flavor.id,
+      quantity: 1,
+      title: flavor.name,
+      price: flavor.price?.toString() || "0",
+      image: flavor.image,
+      variantTitle: "Regular"
+    };
+    
+    addItem(cartItem);
   };
 
   const handleInfoClick = (e: React.MouseEvent) => {

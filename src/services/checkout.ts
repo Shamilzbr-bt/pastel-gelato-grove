@@ -75,15 +75,17 @@ export const checkoutService = {
       // If the user is logged in, store the order in the database
       if (userId) {
         try {
+          // Convert the CheckoutAddress to a plain object that Supabase can store as JSON
+          const deliveryAddressJson = options.address ? { ...options.address } : null;
+          
           const { error } = await supabase
             .from('orders')
             .insert({
-              id: orderId,
               user_id: userId,
               total_amount: totalAmount,
               items: orderSummary,
               status: 'pending',
-              delivery_address: options.address,
+              delivery_address: deliveryAddressJson,
               special_instructions: ''
             });
           

@@ -4,6 +4,7 @@ import { ShoppingBag, Eye } from 'lucide-react';
 import { Product } from '@/pages/Shop';
 import { formatPrice } from '@/utils/formatters';
 import { Link } from 'react-router-dom';
+import { useCart } from '@/hooks/useCart';
 
 interface ProductCardProps {
   product: Product;
@@ -11,6 +12,8 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, onAddToCart }: ProductCardProps) {
+  const { addItem } = useCart();
+  
   // Helper function to parse price safely
   const parsePrice = (price: string | undefined): number => {
     if (!price) return 0;
@@ -24,6 +27,24 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
       return path.substring(7);
     }
     return path;
+  };
+  
+  // Direct add to cart handler
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Create a cart item
+    const cartItem = {
+      variantId: product.variants[0]?.id || product.id,
+      quantity: 1,
+      title: product.title,
+      price: product.variants[0]?.price || "0",
+      image: product.images[0]?.src,
+      variantTitle: product.variants[0]?.title || "Regular"
+    };
+    
+    addItem(cartItem);
   };
 
   return (
@@ -73,7 +94,7 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
                 <Eye size={18} />
               </Link>
               <button
-                onClick={() => onAddToCart(product)}
+                onClick={handleAddToCart}
                 className="inline-flex items-center justify-center p-2 rounded-full bg-gelatico-pink text-white hover:bg-gelatico-pink/90 transition-all duration-300"
                 aria-label={`Add ${product.title} to cart`}
               >
