@@ -10,6 +10,7 @@ import CartItemList from '@/components/cart/CartItemList';
 import OrderSummary from '@/components/cart/OrderSummary';
 import EmptyCart from '@/components/cart/EmptyCart';
 import { checkoutService } from '@/services/checkout';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function Cart() {
   const { 
@@ -22,6 +23,7 @@ export default function Cart() {
   } = useCart();
   
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const navigate = useNavigate();
   
   const handleCheckout = async () => {
@@ -31,6 +33,7 @@ export default function Cart() {
     }
     
     setIsCheckingOut(true);
+    setCheckoutError(null);
     
     try {
       // Process the checkout locally
@@ -45,11 +48,14 @@ export default function Cart() {
         // Navigate to success page with order details
         navigate(`/checkout-success?orderId=${response.orderId}`);
       } else {
+        setCheckoutError(response.error || "There was a problem processing your order");
         toast.error(response.error || "There was a problem processing your order");
       }
     } catch (error) {
       console.error('Error processing checkout:', error);
-      toast.error("There was a problem processing your order. Please try again.");
+      const errorMessage = error instanceof Error ? error.message : "There was a problem processing your order. Please try again.";
+      setCheckoutError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsCheckingOut(false);
     }
@@ -105,6 +111,21 @@ export default function Cart() {
           </motion.div>
         )}
       </div>
+      
+      {/* Error Dialog */}
+      <Dialog open={!!checkoutError} onOpenChange={() => setCheckoutError(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-red-500">Checkout Error</DialogTitle>
+            <DialogDescription>
+              {checkoutError}
+              <div className="mt-4">
+                Please try again or contact customer support if the problem persists.
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
       
       <Footer />
     </div>

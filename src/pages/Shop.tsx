@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { toast } from "sonner";
@@ -75,15 +75,19 @@ export default function Shop() {
       ) 
     : products;
   
-  const onAddToCart = (product: Product) => {
+  const onAddToCart = useCallback((product: Product) => {
     try {
+      if (!product || !product.variants || product.variants.length === 0) {
+        throw new Error("Invalid product data");
+      }
+      
       // Create a cart item from the product
       const cartItem = {
         variantId: product.variants[0]?.id || product.id,
         quantity: 1,
         title: product.title,
         price: product.variants[0]?.price || "0",
-        image: product.images[0]?.src,
+        image: product.images && product.images.length > 0 ? product.images[0]?.src : undefined,
         variantTitle: product.variants[0]?.title || "Regular"
       };
       
@@ -94,7 +98,7 @@ export default function Shop() {
       console.error("Error adding product to cart:", error);
       toast.error("Failed to add product to cart");
     }
-  };
+  }, [addItem]);
 
   return (
     <div className="min-h-screen bg-white">

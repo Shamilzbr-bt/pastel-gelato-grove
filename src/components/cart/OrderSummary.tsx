@@ -1,6 +1,6 @@
 
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ShoppingBag } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 interface OrderSummaryProps {
@@ -22,7 +22,10 @@ export default function OrderSummary({
 }: OrderSummaryProps) {
   return (
     <div className="bg-muted/10 p-6 rounded-2xl border border-muted h-fit">
-      <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
+      <h2 className="text-xl font-semibold mb-6 flex items-center">
+        <ShoppingBag size={18} className="mr-2" />
+        Order Summary
+      </h2>
       
       <div className="space-y-4 mb-6">
         <div className="flex justify-between">
@@ -55,7 +58,7 @@ export default function OrderSummary({
       <Button
         onClick={handleCheckout}
         disabled={isCheckingOut || cartItemsEmpty}
-        className="w-full flex items-center justify-center bg-gelatico-pink hover:bg-gelatico-pink/90"
+        className="w-full flex items-center justify-center bg-gelatico-pink hover:bg-gelatico-pink/90 transition-all"
       >
         {isCheckingOut ? (
           <span className="flex items-center">

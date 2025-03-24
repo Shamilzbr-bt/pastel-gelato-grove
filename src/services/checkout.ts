@@ -22,7 +22,7 @@ export interface CheckoutOptions {
 
 export const checkoutService = {
   /**
-   * Process checkout locally
+   * Process checkout locally and store order in database if user is authenticated
    */
   async processCheckout(items: CartItem[], options: CheckoutOptions = {}): Promise<{
     success: boolean;
@@ -33,11 +33,12 @@ export const checkoutService = {
     error?: string;
   }> {
     try {
+      // Validate cart has items
       if (!items || !items.length) {
         throw new Error('Cannot create checkout with empty cart');
       }
 
-      // Log what we're processing
+      // Log checkout details for debugging
       console.log('Processing checkout with items:', items);
       console.log('Checkout options:', options);
 
@@ -45,7 +46,7 @@ export const checkoutService = {
       const { data: { session } } = await supabase.auth.getSession();
       const userId = session?.user?.id;
 
-      // Simulate processing time
+      // Simulate processing time (this would be actual payment processing in production)
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Calculate total amount
