@@ -1,6 +1,7 @@
 
 import { toast } from "sonner";
 import { CartItem } from "@/hooks/useCart";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface CheckoutAddress {
   first_name?: string;
@@ -32,6 +33,10 @@ export const checkoutService = {
       // Log what we're processing
       console.log('Processing checkout with items:', items);
       console.log('Checkout options:', options);
+
+      // Get current user (if authenticated)
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id;
 
       // Simulate processing time
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -66,6 +71,30 @@ export const checkoutService = {
 
       // Generate a unique order ID
       const orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      
+      // If the user is logged in, store the order in the database
+      if (userId) {
+        try {
+          const { error } = await supabase
+            .from('orders')
+            .insert({
+              id: orderId,
+              user_id: userId,
+              total_amount: totalAmount,
+              items: orderSummary,
+              status: 'pending',
+              delivery_address: options.address,
+              special_instructions: ''
+            });
+          
+          if (error) {
+            console.error('Error saving order to database:', error);
+          }
+        } catch (dbError) {
+          console.error('Error storing order in database:', dbError);
+          // Continue with checkout even if database storage fails
+        }
+      }
       
       return {
         success: true,

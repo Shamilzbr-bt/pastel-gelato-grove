@@ -1,14 +1,16 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, Menu, X } from 'lucide-react';
+import { ShoppingCart, Menu, X, User } from 'lucide-react';
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const location = useLocation();
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -106,15 +108,24 @@ export default function Header() {
             </Link>
           ))}
 
-          <Link 
-            to="/cart" 
-            className="relative p-2 text-foreground transition-all duration-300 hover:text-gelatico-pink"
-          >
-            <ShoppingCart size={20} />
-            <span className="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-gelatico-pink rounded-full">
-              {cartCount}
-            </span>
-          </Link>
+          <div className="flex items-center space-x-4">
+            <Link 
+              to="/cart" 
+              className="relative p-2 text-foreground transition-all duration-300 hover:text-gelatico-pink"
+            >
+              <ShoppingCart size={20} />
+              <span className="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-gelatico-pink rounded-full">
+                {cartCount}
+              </span>
+            </Link>
+            
+            <Link 
+              to={user ? "/profile" : "/auth"} 
+              className="relative p-2 text-foreground transition-all duration-300 hover:text-gelatico-pink"
+            >
+              <User size={20} />
+            </Link>
+          </div>
         </nav>
 
         {/* Mobile: Menu Button & Cart */}
@@ -127,6 +138,13 @@ export default function Header() {
             <span className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-gelatico-pink rounded-full">
               {cartCount}
             </span>
+          </Link>
+          
+          <Link 
+            to={user ? "/profile" : "/auth"}
+            className="relative p-1 text-foreground transition-all duration-300 hover:text-gelatico-pink"
+          >
+            <User size={20} />
           </Link>
           
           <button
@@ -161,6 +179,16 @@ export default function Header() {
               {item.name}
             </Link>
           ))}
+          
+          <Link
+            to={user ? "/profile" : "/auth"}
+            className={cn(
+              "text-xl font-medium transition-all duration-300",
+              isActive(user ? "/profile" : "/auth") ? "text-gelatico-pink" : "text-foreground"
+            )}
+          >
+            {user ? "My Account" : "Sign In"}
+          </Link>
         </div>
       </div>
     </header>
