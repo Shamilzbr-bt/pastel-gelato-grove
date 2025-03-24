@@ -33,7 +33,7 @@ export const checkoutService = {
     error?: string;
   }> {
     try {
-      if (!items.length) {
+      if (!items || !items.length) {
         throw new Error('Cannot create checkout with empty cart');
       }
 
@@ -70,12 +70,6 @@ export const checkoutService = {
       
       console.log('Order summary:', orderSummary);
       
-      // In a real application, you would:
-      // 1. Save the order to a database
-      // 2. Process payment through a payment gateway
-      // 3. Send confirmation emails
-      // 4. Update inventory
-
       // Generate a unique order ID
       const orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
       
