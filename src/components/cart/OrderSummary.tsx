@@ -55,7 +55,7 @@ export default function OrderSummary({
       <Button
         onClick={handleCheckout}
         disabled={isCheckingOut || cartItemsEmpty}
-        className="w-full flex items-center justify-center"
+        className="w-full flex items-center justify-center bg-gelatico-pink hover:bg-gelatico-pink/90"
       >
         {isCheckingOut ? (
           <span className="flex items-center">

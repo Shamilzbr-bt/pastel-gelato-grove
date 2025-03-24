@@ -5,6 +5,7 @@ import { Product } from '@/pages/Shop';
 import { formatPrice } from '@/utils/formatters';
 import { Link } from 'react-router-dom';
 import { useCart } from '@/hooks/useCart';
+import { toast } from "sonner";
 
 interface ProductCardProps {
   product: Product;
@@ -34,18 +35,29 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
     e.preventDefault();
     e.stopPropagation();
     
-    // Create a cart item
-    const cartItem = {
-      variantId: product.variants[0]?.id || product.id,
-      quantity: 1,
-      title: product.title,
-      price: product.variants[0]?.price || "0",
-      image: product.images[0]?.src,
-      variantTitle: product.variants[0]?.title || "Regular"
-    };
-    
-    addItem(cartItem);
+    try {
+      // Create a cart item
+      const cartItem = {
+        variantId: product.variants[0]?.id || product.id,
+        quantity: 1,
+        title: product.title,
+        price: product.variants[0]?.price || "0",
+        image: product.images[0]?.src,
+        variantTitle: product.variants[0]?.title || "Regular"
+      };
+      
+      // Add to cart and show success message
+      addItem(cartItem);
+      
+      console.log("Added to cart:", cartItem);
+    } catch (error) {
+      console.error("Error adding item to cart:", error);
+      toast.error("Failed to add item to cart. Please try again.");
+    }
   };
+
+  // Default fallback image
+  const fallbackImage = '/lovable-uploads/ee7dd54f-f5d1-41fb-9c95-21e2916f3ee7.png';
 
   return (
     <motion.div
@@ -59,13 +71,13 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
       <div className="card">
         <div className="aspect-square relative overflow-hidden">
           <img 
-            src={cleanImagePath(product.images[0]?.src || 'https://placehold.co/400')} 
+            src={cleanImagePath(product.images[0]?.src || fallbackImage)} 
             alt={product.title} 
             className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              target.src = '/lovable-uploads/ee7dd54f-f5d1-41fb-9c95-21e2916f3ee7.png';
-              console.log(`Failed to load image: ${product.images[0]?.src}`);
+              target.src = fallbackImage;
+              console.log(`Failed to load image: ${product.images[0]?.src}, using fallback`);
             }}
           />
           <div className="absolute top-3 left-3">

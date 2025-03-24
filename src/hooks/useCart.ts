@@ -27,43 +27,62 @@ export function useCart() {
   
   // Load cart on mount
   useEffect(() => {
-    const savedCart = localStorage.getItem('gelatico-cart');
-    if (savedCart) {
-      try {
+    try {
+      const savedCart = localStorage.getItem('gelatico-cart');
+      if (savedCart) {
         setCartItems(JSON.parse(savedCart));
-      } catch (e) {
-        console.error('Error loading cart from localStorage:', e);
-        localStorage.removeItem('gelatico-cart');
       }
+    } catch (e) {
+      console.error('Error loading cart from localStorage:', e);
+      localStorage.removeItem('gelatico-cart');
     }
-    
+  }, []);
+  
+  // Create separate effect for listening to cart updates to avoid infinite loops
+  useEffect(() => {
     // Listen for cart updates from other tabs/components
-    const handleCartUpdate = () => {
-      const updatedCart = localStorage.getItem('gelatico-cart');
-      if (updatedCart) {
-        try {
+    const handleCartUpdate = (event: Event) => {
+      try {
+        const updatedCart = localStorage.getItem('gelatico-cart');
+        if (updatedCart) {
           setCartItems(JSON.parse(updatedCart));
-        } catch (e) {
-          console.error('Error parsing updated cart:', e);
         }
+      } catch (e) {
+        console.error('Error parsing updated cart:', e);
       }
     };
     
     window.addEventListener('cart-updated', handleCartUpdate);
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'gelatico-cart') {
+        handleCartUpdate(e);
+      }
+    });
     
     return () => {
       window.removeEventListener('cart-updated', handleCartUpdate);
+      window.removeEventListener('storage', handleCartUpdate);
     };
   }, []);
   
   // Save cart on change
   useEffect(() => {
-    localStorage.setItem('gelatico-cart', JSON.stringify(cartItems));
-    // Dispatch event for other components to pick up
-    window.dispatchEvent(new Event('cart-updated'));
+    try {
+      localStorage.setItem('gelatico-cart', JSON.stringify(cartItems));
+      // Dispatch event for other components to pick up
+      window.dispatchEvent(new Event('cart-updated'));
+    } catch (e) {
+      console.error('Error saving cart to localStorage:', e);
+    }
   }, [cartItems]);
   
   const addItem = (item: CartItem) => {
+    if (!item.variantId) {
+      console.error("Cannot add item without variantId:", item);
+      toast.error("Could not add item to cart - missing information");
+      return;
+    }
+    
     setCartItems(prevItems => {
       const existingItemIndex = prevItems.findIndex(i => i.variantId === item.variantId);
       

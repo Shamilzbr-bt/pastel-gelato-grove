@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -34,15 +35,23 @@ export default function Shop() {
     async function fetchProducts() {
       setIsLoading(true);
       try {
-        // Get local products only
+        // Get local products
         const localProducts = getLocalProducts();
+        
+        if (!localProducts || !localProducts.length) {
+          throw new Error("No products found");
+        }
+        
+        console.log(`Loaded ${localProducts.length} products`);
         setProducts(localProducts);
       } catch (error) {
         console.error("Error fetching products:", error);
         toast.error("Failed to load products. Using demo data instead.");
         
         // Fall back to demo products
-        setProducts(getDemoProducts());
+        const demoProducts = getDemoProducts();
+        setProducts(demoProducts);
+        console.log(`Loaded ${demoProducts.length} demo products instead`);
       } finally {
         setIsLoading(false);
       }
@@ -67,8 +76,24 @@ export default function Shop() {
     : products;
   
   const onAddToCart = (product: Product) => {
-    // This function is passed to ProductCard but the actual implementation is in ProductCard now
-    // We'll keep it for compatibility but it's not directly used anymore
+    try {
+      // Create a cart item from the product
+      const cartItem = {
+        variantId: product.variants[0]?.id || product.id,
+        quantity: 1,
+        title: product.title,
+        price: product.variants[0]?.price || "0",
+        image: product.images[0]?.src,
+        variantTitle: product.variants[0]?.title || "Regular"
+      };
+      
+      // Add to cart
+      addItem(cartItem);
+      console.log("Added to cart from Shop page:", cartItem);
+    } catch (error) {
+      console.error("Error adding product to cart:", error);
+      toast.error("Failed to add product to cart");
+    }
   };
 
   return (

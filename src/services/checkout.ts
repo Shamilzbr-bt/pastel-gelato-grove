@@ -24,7 +24,14 @@ export const checkoutService = {
   /**
    * Process checkout locally
    */
-  async processCheckout(items: CartItem[], options: CheckoutOptions = {}) {
+  async processCheckout(items: CartItem[], options: CheckoutOptions = {}): Promise<{
+    success: boolean;
+    orderId?: string;
+    totalAmount?: number;
+    orderSummary?: any;
+    message?: string;
+    error?: string;
+  }> {
     try {
       if (!items.length) {
         throw new Error('Cannot create checkout with empty cart');
@@ -52,9 +59,9 @@ export const checkoutService = {
       // Generate a formatted order summary
       const orderSummary = items.map(item => {
         return {
-          title: item.title,
+          title: item.title || 'Unknown product',
           quantity: item.quantity,
-          price: item.price,
+          price: item.price || "0",
           container: item.customizations?.container?.name,
           toppings: item.customizations?.toppingNames,
           total: (parseFloat(item.price || "0") * item.quantity).toFixed(3)
@@ -91,6 +98,9 @@ export const checkoutService = {
           
           if (error) {
             console.error('Error saving order to database:', error);
+            // Continue with checkout even if database storage fails
+          } else {
+            console.log('Order successfully saved to database');
           }
         } catch (dbError) {
           console.error('Error storing order in database:', dbError);
